@@ -1,121 +1,130 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Snake Game</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      margin-top: 20px;
-    }
-    canvas {
-      background: #000;
-      display: block;
-      margin: 20px auto;
-      border: 2px solid #555;
-    }
-    h2 { color: #0056b3; }
-  </style>
+<meta charset="UTF-8">
+<title>Snake Móvil</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  canvas {
+    background: black;
+    display: block;
+    margin: 20px auto;
+    border: 2px solid #555;
+  }
+  #controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  button {
+    padding: 15px 25px;
+    font-size: 18px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:active { background: #003d80; }
+  h2 { color: #0056b3; }
+</style>
 </head>
 <body>
 
-  <h2>Snake Game</h2>
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
-  <p>Puntaje: <span id="score">0</span></p>
+<h2>Snake para Móvil</h2>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+<p>Puntaje: <span id="score">0</span></p>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+<!-- Controles táctiles -->
+<div id="controls">
+  <button onclick="setDirection('UP')">⬆️</button>
+  <button onclick="setDirection('LEFT')">⬅️</button>
+  <button onclick="setDirection('DOWN')">⬇️</button>
+  <button onclick="setDirection('RIGHT')">➡️</button>
+</div>
 
-    const box = 20; // tamaño de cada "cuadro" de la serpiente
-    let score = 0;
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const box = 20;
 
-    // Serpiente inicial
-    let snake = [];
-    snake[0] = { x: 8 * box, y: 8 * box };
+let score = 0;
+let snake = [{ x: 8*box, y: 8*box }];
+let food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
+let d;
 
-    // Comida
-    let food = {
-      x: Math.floor(Math.random() * 20) * box,
-      y: Math.floor(Math.random() * 20) * box
-    };
+// Función para establecer dirección desde botones
+function setDirection(dir){
+  if(dir === 'UP' && d !== 'DOWN') d = 'UP';
+  if(dir === 'DOWN' && d !== 'UP') d = 'DOWN';
+  if(dir === 'LEFT' && d !== 'RIGHT') d = 'LEFT';
+  if(dir === 'RIGHT' && d !== 'LEFT') d = 'RIGHT';
+}
 
-    let d; // dirección
+// Para teclado también opcional
+document.addEventListener("keydown", function(e){
+  if(e.key === "ArrowUp") setDirection('UP');
+  if(e.key === "ArrowDown") setDirection('DOWN');
+  if(e.key === "ArrowLeft") setDirection('LEFT');
+  if(e.key === "ArrowRight") setDirection('RIGHT');
+});
 
-    document.addEventListener("keydown", direction);
+function draw(){
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    function direction(event) {
-      if(event.key === "ArrowUp" && d !== "DOWN") d = "UP";
-      else if(event.key === "ArrowDown" && d !== "UP") d = "DOWN";
-      else if(event.key === "ArrowLeft" && d !== "RIGHT") d = "LEFT";
-      else if(event.key === "ArrowRight" && d !== "LEFT") d = "RIGHT";
-    }
+  for(let i=0; i<snake.length; i++){
+    ctx.fillStyle = i===0 ? "lime" : "green";
+    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+  }
 
-    function draw() {
-      // Fondo
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
 
-      // Dibujar serpiente
-      for(let i=0; i<snake.length; i++){
-        ctx.fillStyle = i === 0 ? "lime" : "green";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
-        ctx.strokeStyle = "black";
-        ctx.strokeRect(snake[i].x, snake[i].y, box, box);
-      }
+  let snakeX = snake[0].x;
+  let snakeY = snake[0].y;
 
-      // Dibujar comida
-      ctx.fillStyle = "red";
-      ctx.fillRect(food.x, food.y, box, box);
+  if(d === 'LEFT') snakeX -= box;
+  if(d === 'UP') snakeY -= box;
+  if(d === 'RIGHT') snakeX += box;
+  if(d === 'DOWN') snakeY += box;
 
-      // Posición de la cabeza
-      let snakeX = snake[0].x;
-      let snakeY = snake[0].y;
+  if(snakeX === food.x && snakeY === food.y){
+    score++;
+    document.getElementById("score").innerText = score;
+    food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
+  } else {
+    snake.pop();
+  }
 
-      // Mover la cabeza
-      if(d === "LEFT") snakeX -= box;
-      if(d === "UP") snakeY -= box;
-      if(d === "RIGHT") snakeX += box;
-      if(d === "DOWN") snakeY += box;
+  let newHead = { x: snakeX, y: snakeY };
 
-      // Comer comida
-      if(snakeX === food.x && snakeY === food.y){
-        score++;
-        document.getElementById("score").innerText = score;
-        food = {
-          x: Math.floor(Math.random() * 20) * box,
-          y: Math.floor(Math.random() * 20) * box
-        };
-      } else {
-        snake.pop();
-      }
+  if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
+    clearInterval(game);
+    alert("¡Game Over! Puntaje: " + score);
+  }
 
-      // Nueva cabeza
-      let newHead = { x: snakeX, y: snakeY };
+  snake.unshift(newHead);
+}
 
-      // Fin del juego
-      if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
-        clearInterval(game);
-        alert("¡Game Over! Puntaje: " + score);
-      }
+function collision(head, array){
+  for(let i=0; i<array.length; i++){
+    if(head.x === array[i].x && head.y === array[i].y) return true;
+  }
+  return false;
+}
 
-      snake.unshift(newHead);
-    }
-
-    function collision(head, array){
-      for(let i=0; i<array.length; i++){
-        if(head.x === array[i].x && head.y === array[i].y){
-          return true;
-        }
-      }
-      return false;
-    }
-
-    let game = setInterval(draw, 100);
-  </script>
+let game = setInterval(draw, 100);
+</script>
 
 </body>
 </html>
