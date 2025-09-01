@@ -1,81 +1,20 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Mi Primera Página</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
-      text-align: center;
-      margin: 20px;
-    }
-    h1 {
-      color: #0056b3;
-    }
-    form {
-      margin: 20px auto;
-      padding: 15px;
-      border: 1px solid #ccc;
-      width: 300px;
-      background: #fff;
-      border-radius: 10px;
-    }
-    input[type="text"], input[type="email"] {
-      width: 90%;
-      padding: 8px;
-      margin: 8px 0;
-    }
-    input[type="submit"], button {
-      background: #0056b3;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    input[type="submit"]:hover, button:hover {
-      background: #003d80;
-    }
-    img {
-      margin-top: 20px;
-      border-radius: 10px;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Bienvenido a mi página web</h1>
-  <p>Este es un ejemplo básico de lo que se puede hacer con HTML.</p>
-
-  <!-- Formulario -->
-  <form onsubmit="return mostrarMensaje()">
-    <h3>Formulario de Contacto</h3>
-    <label>Nombre:</label><br>
-    <input type="text" name="nombre" id="nombre" required><br>
-    <label>Email:</label><br>
-    <input type="email" name="email" required><br><br>
-    <input type="submit" value="Enviar">
-  </form>
-
-  <!-- Imagen -->
-  <img src="https://via.placeholder.com/300x200" alt="Imagen de ejemplo">
-
-  <!-- Botón interactivo -->
-  <br><br>
-  <button onclick="saludo()">Haz clic aquí</button>
-
-  <script>
-    function saludo() {
-      alert("¡Hola Fernando! 👋 Bienvenido a tu página.");
-    }
-
-    function mostrarMensaje() {
-      let nombre = document.getElementById("nombre").value;
-      alert("Gracias por registrarte, " + nombre + " ✅");
-      return false; // evita que recargue la página
-    }
-  </script>
-
-</body>
-</html>
+<table border="1" cellpadding="10">
+  <tr>
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Edad</th>
+    <th>Ciudad</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Fernando</td>
+    <td>35</td>
+    <td>México</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>Paola</td>
+    <td>12</td>
+    <td>CDMX</td>
+  </tr>
+</table>
