@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejemplo Details & Summary</title>
+  <style>
+    details {
+      margin: 1em 0;
+      padding: 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    details[open] {
+      background: #e6f7ff;
+      border-color: #0099cc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Contenido Colapsable con HTML</h1>
+
+  <details>
+    <summary>¿Qué es HTML?</summary>
+    <p>HTML significa HyperText Markup Language. Es el lenguaje estándar para crear páginas web.</p>
+  </details>
+
+  <details>
+    <summary>¿Por qué usar &lt;details&gt;?</summary>
+    <ul>
+      <li>No necesitas JavaScript ✔️</li>
+      <li>Es accesible por defecto 💡</li>
+      <li>Ideal para FAQs o notas ocultas</li>
+    </ul>
+  </details>
+
+</body>
+</html>
