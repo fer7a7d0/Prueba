@@ -1,15 +1,87 @@
-<table id="miTabla" border="1"></table>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tabla dinámica con formulario</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 70%;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th { background: #0056b3; color: white; }
+    tr:nth-child(even) { background: #f2f2f2; }
+    input[type="text"], input[type="number"] { padding: 5px; margin: 5px; }
+    input[type="submit"] { padding: 5px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
 
-<script>
-  const datos = [
-    {id: 1, nombre: "Fernando", edad: 35, ciudad: "México"},
-    {id: 2, nombre: "Paola", edad: 12, ciudad: "CDMX"}
-  ];
+  <h2>Tabla Dinámica con Formulario</h2>
 
-  let tabla = "<tr><th>ID</th><th>Nombre</th><th>Edad</th><th>Ciudad</th></tr>";
-  datos.forEach(d => {
-    tabla += `<tr><td>${d.id}</td><td>${d.nombre}</td><td>${d.edad}</td><td>${d.ciudad}</td></tr>`;
-  });
+  <!-- Formulario para agregar datos -->
+  <form id="miFormulario">
+    <input type="number" id="id" placeholder="ID" required>
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="number" id="edad" placeholder="Edad" required>
+    <input type="text" id="ciudad" placeholder="Ciudad" required>
+    <input type="submit" value="Agregar">
+  </form>
 
-  document.getElementById("miTabla").innerHTML = tabla;
-</script>
+  <!-- Tabla -->
+  <table id="miTabla"></table>
+
+  <script>
+    // 🔹 Datos iniciales
+    let datos = [
+      {id: 1, nombre: "Fernando", edad: 35, ciudad: "México"},
+      {id: 2, nombre: "Paola", edad: 12, ciudad: "CDMX"}
+    ];
+
+    // 🔹 Función para mostrar la tabla
+    function mostrarTabla() {
+      let tabla = "<tr><th>ID</th><th>Nombre</th><th>Edad</th><th>Ciudad</th></tr>";
+      datos.forEach(d => {
+        tabla += `<tr>
+                    <td>${d.id}</td>
+                    <td>${d.nombre}</td>
+                    <td>${d.edad}</td>
+                    <td>${d.ciudad}</td>
+                  </tr>`;
+      });
+      document.getElementById("miTabla").innerHTML = tabla;
+    }
+
+    mostrarTabla(); // Mostrar tabla al cargar
+
+    // 🔹 Agregar datos desde el formulario
+    document.getElementById("miFormulario").addEventListener("submit", function(e){
+      e.preventDefault(); // Evita que la página se recargue
+
+      // Tomar valores del formulario
+      let nuevo = {
+        id: parseInt(document.getElementById("id").value),
+        nombre: document.getElementById("nombre").value,
+        edad: parseInt(document.getElementById("edad").value),
+        ciudad: document.getElementById("ciudad").value
+      };
+
+      // Agregar al arreglo de datos
+      datos.push(nuevo);
+
+      // Limpiar formulario
+      this.reset();
+
+      // Mostrar tabla actualizada
+      mostrarTabla();
+    });
+  </script>
+
+</body>
+</html>
