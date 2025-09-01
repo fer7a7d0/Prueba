@@ -2,13 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Snake Móvil</title>
+<title>Snake Swipe</title>
 <style>
   body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
     padding: 0;
+    user-select: none; /* evita selección accidental */
+    touch-action: none; /* desactiva scroll en canvas */
   }
   canvas {
     background: black;
@@ -16,39 +18,14 @@
     margin: 20px auto;
     border: 2px solid #555;
   }
-  #controls {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  button {
-    padding: 15px 25px;
-    font-size: 18px;
-    background: #0056b3;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  button:active { background: #003d80; }
   h2 { color: #0056b3; }
 </style>
 </head>
 <body>
 
-<h2>Snake para Móvil</h2>
+<h2>Snake Móvil Swipe</h2>
 <canvas id="gameCanvas" width="400" height="400"></canvas>
 <p>Puntaje: <span id="score">0</span></p>
-
-<!-- Controles táctiles -->
-<div id="controls">
-  <button onclick="setDirection('UP')">⬆️</button>
-  <button onclick="setDirection('LEFT')">⬅️</button>
-  <button onclick="setDirection('DOWN')">⬇️</button>
-  <button onclick="setDirection('RIGHT')">➡️</button>
-</div>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
@@ -60,20 +37,35 @@ let snake = [{ x: 8*box, y: 8*box }];
 let food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
 let d;
 
-// Función para establecer dirección desde botones
-function setDirection(dir){
-  if(dir === 'UP' && d !== 'DOWN') d = 'UP';
-  if(dir === 'DOWN' && d !== 'UP') d = 'DOWN';
-  if(dir === 'LEFT' && d !== 'RIGHT') d = 'LEFT';
-  if(dir === 'RIGHT' && d !== 'LEFT') d = 'RIGHT';
-}
+// Detectar gestos
+let startX, startY;
 
-// Para teclado también opcional
+canvas.addEventListener("touchstart", e => {
+  const touch = e.touches[0];
+  startX = touch.clientX;
+  startY = touch.clientY;
+}, false);
+
+canvas.addEventListener("touchend", e => {
+  const touch = e.changedTouches[0];
+  let dx = touch.clientX - startX;
+  let dy = touch.clientY - startY;
+
+  if(Math.abs(dx) > Math.abs(dy)){
+    if(dx > 0 && d !== "LEFT") d = "RIGHT";
+    else if(dx < 0 && d !== "RIGHT") d = "LEFT";
+  } else {
+    if(dy > 0 && d !== "UP") d = "DOWN";
+    else if(dy < 0 && d !== "DOWN") d = "UP";
+  }
+}, false);
+
+// Opcional: teclado para PC
 document.addEventListener("keydown", function(e){
-  if(e.key === "ArrowUp") setDirection('UP');
-  if(e.key === "ArrowDown") setDirection('DOWN');
-  if(e.key === "ArrowLeft") setDirection('LEFT');
-  if(e.key === "ArrowRight") setDirection('RIGHT');
+  if(e.key === "ArrowUp" && d !== "DOWN") d = "UP";
+  if(e.key === "ArrowDown" && d !== "UP") d = "DOWN";
+  if(e.key === "ArrowLeft" && d !== "RIGHT") d = "LEFT";
+  if(e.key === "ArrowRight" && d !== "LEFT") d = "RIGHT";
 });
 
 function draw(){
@@ -93,10 +85,10 @@ function draw(){
   let snakeX = snake[0].x;
   let snakeY = snake[0].y;
 
-  if(d === 'LEFT') snakeX -= box;
-  if(d === 'UP') snakeY -= box;
-  if(d === 'RIGHT') snakeX += box;
-  if(d === 'DOWN') snakeY += box;
+  if(d === "LEFT") snakeX -= box;
+  if(d === "UP") snakeY -= box;
+  if(d === "RIGHT") snakeX += box;
+  if(d === "DOWN") snakeY += box;
 
   if(snakeX === food.x && snakeY === food.y){
     score++;
