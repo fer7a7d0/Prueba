@@ -2,45 +2,80 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ejemplo Details & Summary</title>
+  <title>Mi Primera Página</title>
   <style>
-    details {
-      margin: 1em 0;
-      padding: 0.5em;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      text-align: center;
+      margin: 20px;
+    }
+    h1 {
+      color: #0056b3;
+    }
+    form {
+      margin: 20px auto;
+      padding: 15px;
       border: 1px solid #ccc;
-      border-radius: 5px;
-      background: #f9f9f9;
+      width: 300px;
+      background: #fff;
+      border-radius: 10px;
     }
-
-    summary {
-      font-weight: bold;
+    input[type="text"], input[type="email"] {
+      width: 90%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+    input[type="submit"], button {
+      background: #0056b3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
       cursor: pointer;
+      border-radius: 5px;
     }
-
-    details[open] {
-      background: #e6f7ff;
-      border-color: #0099cc;
+    input[type="submit"]:hover, button:hover {
+      background: #003d80;
+    }
+    img {
+      margin-top: 20px;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Contenido Colapsable con HTML</h1>
+  <h1>Bienvenido a mi página web</h1>
+  <p>Este es un ejemplo básico de lo que se puede hacer con HTML.</p>
 
-  <details>
-    <summary>¿Qué es HTML?</summary>
-    <p>HTML significa HyperText Markup Language. Es el lenguaje estándar para crear páginas web.</p>
-  </details>
+  <!-- Formulario -->
+  <form onsubmit="return mostrarMensaje()">
+    <h3>Formulario de Contacto</h3>
+    <label>Nombre:</label><br>
+    <input type="text" name="nombre" id="nombre" required><br>
+    <label>Email:</label><br>
+    <input type="email" name="email" required><br><br>
+    <input type="submit" value="Enviar">
+  </form>
 
-  <details>
-    <summary>¿Por qué usar &lt;details&gt;?</summary>
-    <ul>
-      <li>No necesitas JavaScript ✔️</li>
-      <li>Es accesible por defecto 💡</li>
-      <li>Ideal para FAQs o notas ocultas</li>
-    </ul>
-  </details>
+  <!-- Imagen -->
+  <img src="https://via.placeholder.com/300x200" alt="Imagen de ejemplo">
+
+  <!-- Botón interactivo -->
+  <br><br>
+  <button onclick="saludo()">Haz clic aquí</button>
+
+  <script>
+    function saludo() {
+      alert("¡Hola Fernando! 👋 Bienvenido a tu página.");
+    }
+
+    function mostrarMensaje() {
+      let nombre = document.getElementById("nombre").value;
+      alert("Gracias por registrarte, " + nombre + " ✅");
+      return false; // evita que recargue la página
+    }
+  </script>
 
 </body>
 </html>
