@@ -2,15 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Snake Swipe</title>
+<title>Snake Móvil Responsive</title>
 <style>
   body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
     padding: 0;
-    user-select: none; /* evita selección accidental */
-    touch-action: none; /* desactiva scroll en canvas */
+    user-select: none;
+    touch-action: none;
+    background: #f0f0f0;
   }
   canvas {
     background: black;
@@ -19,27 +20,38 @@
     border: 2px solid #555;
   }
   h2 { color: #0056b3; }
+  p { font-size: 18px; }
 </style>
 </head>
 <body>
 
-<h2>Snake Móvil Swipe</h2>
-<canvas id="gameCanvas" width="400" height="400"></canvas>
+<h2>Snake Responsive</h2>
+<canvas id="gameCanvas"></canvas>
 <p>Puntaje: <span id="score">0</span></p>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const box = 20;
+
+// Tamaño relativo del canvas según la pantalla
+const canvasSize = Math.min(window.innerWidth, window.innerHeight) - 40;
+canvas.width = canvasSize;
+canvas.height = canvasSize;
+
+// Tamaño de cada cuadro según el canvas
+const boxCount = 20; // Número de cuadros en ancho y alto
+const box = canvas.width / boxCount;
 
 let score = 0;
-let snake = [{ x: 8*box, y: 8*box }];
-let food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
+let snake = [{ x: Math.floor(boxCount/2)*box, y: Math.floor(boxCount/2)*box }];
+let food = {
+  x: Math.floor(Math.random()*boxCount)*box,
+  y: Math.floor(Math.random()*boxCount)*box
+};
 let d;
 
-// Detectar gestos
+// Detectar gestos táctiles
 let startX, startY;
-
 canvas.addEventListener("touchstart", e => {
   const touch = e.touches[0];
   startX = touch.clientX;
@@ -72,6 +84,7 @@ function draw(){
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Dibujar serpiente
   for(let i=0; i<snake.length; i++){
     ctx.fillStyle = i===0 ? "lime" : "green";
     ctx.fillRect(snake[i].x, snake[i].y, box, box);
@@ -79,6 +92,7 @@ function draw(){
     ctx.strokeRect(snake[i].x, snake[i].y, box, box);
   }
 
+  // Dibujar comida
   ctx.fillStyle = "red";
   ctx.fillRect(food.x, food.y, box, box);
 
@@ -90,16 +104,21 @@ function draw(){
   if(d === "RIGHT") snakeX += box;
   if(d === "DOWN") snakeY += box;
 
+  // Comer comida
   if(snakeX === food.x && snakeY === food.y){
     score++;
     document.getElementById("score").innerText = score;
-    food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
+    food = {
+      x: Math.floor(Math.random()*boxCount)*box,
+      y: Math.floor(Math.random()*boxCount)*box
+    };
   } else {
     snake.pop();
   }
 
   let newHead = { x: snakeX, y: snakeY };
 
+  // Fin del juego
   if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
     clearInterval(game);
     alert("¡Game Over! Puntaje: " + score);
@@ -114,6 +133,11 @@ function collision(head, array){
   }
   return false;
 }
+
+// Actualizar tamaño si cambia la pantalla
+window.addEventListener("resize", () => {
+  location.reload(); // recarga la página para recalcular el canvas
+});
 
 let game = setInterval(draw, 100);
 </script>
