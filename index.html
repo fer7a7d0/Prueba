@@ -38,3 +38,19 @@
     <td>CDMX</td>
   </tr>
 </table>
+
+<table id="miTabla" border="1"></table>
+
+<script>
+  const datos = [
+    {id: 1, nombre: "Fernando", edad: 35, ciudad: "México"},
+    {id: 2, nombre: "Paola", edad: 12, ciudad: "CDMX"}
+  ];
+
+  let tabla = "<tr><th>ID</th><th>Nombre</th><th>Edad</th><th>Ciudad</th></tr>";
+  datos.forEach(d => {
+    tabla += `<tr><td>${d.id}</td><td>${d.nombre}</td><td>${d.edad}</td><td>${d.ciudad}</td></tr>`;
+  });
+
+  document.getElementById("miTabla").innerHTML = tabla;
+</script>
