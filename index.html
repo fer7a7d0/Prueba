@@ -2,137 +2,119 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Snake Amigable</title>
+<title>Tres en Raya</title>
 <style>
   body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
-    padding: 0;
-    user-select: none;
-    touch-action: none;
-    background: #f0f0f0;
+    padding: 20px;
+    background: #f0f8ff;
   }
-  canvas {
-    background: #e0ffe0; /* color suave tipo “noble” */
-    display: block;
+  h2 { color: #0056b3; }
+  #game {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 5px;
+    justify-content: center;
     margin: 20px auto;
-    border: 3px solid #008000;
-    border-radius: 10px;
   }
-  h2 { color: #006400; }
-  p { font-size: 18px; }
+  .cell {
+    background: #e0f7fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    cursor: pointer;
+    border: 2px solid #00796b;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .cell:hover { background: #b2ebf2; }
+  #message { font-size: 20px; color: #00796b; margin-top: 10px; }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 15px;
+    cursor: pointer;
+    background: #00796b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  button:hover { background: #004d40; }
 </style>
 </head>
 <body>
 
-<h2>Snake Suave y Amigable</h2>
-<canvas id="gameCanvas"></canvas>
-<p>Puntaje: <span id="score">0</span></p>
+<h2>Tres en Raya</h2>
+<div id="game">
+  <div class="cell" data-index="0"></div>
+  <div class="cell" data-index="1"></div>
+  <div class="cell" data-index="2"></div>
+  <div class="cell" data-index="3"></div>
+  <div class="cell" data-index="4"></div>
+  <div class="cell" data-index="5"></div>
+  <div class="cell" data-index="6"></div>
+  <div class="cell" data-index="7"></div>
+  <div class="cell" data-index="8"></div>
+</div>
+<div id="message"></div>
+<button onclick="resetGame()">Reiniciar Juego</button>
 
 <script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+let board = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
+let gameOver = false;
 
-// Tamaño relativo del canvas según la pantalla
-const canvasSize = Math.min(window.innerWidth, window.innerHeight) - 40;
-canvas.width = canvasSize;
-canvas.height = canvasSize;
+const cells = document.querySelectorAll(".cell");
+const message = document.getElementById("message");
 
-// Configuración de cuadros
-const boxCount = 20; // cantidad de cuadros por fila/columna
-const box = canvas.width / boxCount;
-
-let score = 0;
-let snake = [{ x: Math.floor(boxCount/2)*box, y: Math.floor(boxCount/2)*box }];
-let food = { x: Math.floor(Math.random()*boxCount)*box, y: Math.floor(Math.random()*boxCount)*box };
-let d;
-
-// Gestos táctiles
-let startX, startY;
-canvas.addEventListener("touchstart", e => {
-  const touch = e.touches[0];
-  startX = touch.clientX;
-  startY = touch.clientY;
-}, false);
-
-canvas.addEventListener("touchend", e => {
-  const touch = e.changedTouches[0];
-  let dx = touch.clientX - startX;
-  let dy = touch.clientY - startY;
-
-  if(Math.abs(dx) > Math.abs(dy)){
-    if(dx > 0 && d !== "LEFT") d = "RIGHT";
-    else if(dx < 0 && d !== "RIGHT") d = "LEFT";
-  } else {
-    if(dy > 0 && d !== "UP") d = "DOWN";
-    else if(dy < 0 && d !== "DOWN") d = "UP";
-  }
-}, false);
-
-// Teclado opcional
-document.addEventListener("keydown", function(e){
-  if(e.key === "ArrowUp" && d !== "DOWN") d = "UP";
-  if(e.key === "ArrowDown" && d !== "UP") d = "DOWN";
-  if(e.key === "ArrowLeft" && d !== "RIGHT") d = "LEFT";
-  if(e.key === "ArrowRight" && d !== "LEFT") d = "RIGHT";
+// Función para hacer un movimiento
+cells.forEach(cell => {
+  cell.addEventListener("click", () => {
+    const index = cell.getAttribute("data-index");
+    if(board[index] === "" && !gameOver){
+      board[index] = currentPlayer;
+      cell.textContent = currentPlayer;
+      checkWinner();
+      if(!gameOver) currentPlayer = currentPlayer === "X" ? "O" : "X";
+    }
+  });
 });
 
-function draw(){
-  // Fondo suave
-  ctx.fillStyle = "#e0ffe0";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Función para revisar ganador
+function checkWinner(){
+  const winPatterns = [
+    [0,1,2],[3,4,5],[6,7,8], // filas
+    [0,3,6],[1,4,7],[2,5,8], // columnas
+    [0,4,8],[2,4,6]          // diagonales
+  ];
 
-  // Dibujar serpiente
-  for(let i=0; i<snake.length; i++){
-    ctx.fillStyle = i===0 ? "#32CD32" : "#7CFC00"; // cabeza y cuerpo diferente
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
-    ctx.strokeStyle = "#006400"; // borde más noble
-    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+  for(let pattern of winPatterns){
+    const [a,b,c] = pattern;
+    if(board[a] && board[a] === board[b] && board[a] === board[c]){
+      message.textContent = `¡Jugador ${board[a]} gana!`;
+      gameOver = true;
+      return;
+    }
   }
 
-  // Dibujar comida
-  ctx.fillStyle = "#FF4500";
-  ctx.fillRect(food.x, food.y, box, box);
-
-  let snakeX = snake[0].x;
-  let snakeY = snake[0].y;
-
-  if(d === "LEFT") snakeX -= box;
-  if(d === "UP") snakeY -= box;
-  if(d === "RIGHT") snakeX += box;
-  if(d === "DOWN") snakeY += box;
-
-  if(snakeX === food.x && snakeY === food.y){
-    score++;
-    document.getElementById("score").innerText = score;
-    food = { x: Math.floor(Math.random()*boxCount)*box, y: Math.floor(Math.random()*boxCount)*box };
-  } else {
-    snake.pop();
+  if(!board.includes("")){
+    message.textContent = "¡Empate!";
+    gameOver = true;
   }
-
-  let newHead = { x: snakeX, y: snakeY };
-
-  if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
-    clearInterval(game);
-    alert("¡Game Over! Puntaje: " + score);
-  }
-
-  snake.unshift(newHead);
 }
 
-function collision(head, array){
-  for(let i=0; i<array.length; i++){
-    if(head.x === array[i].x && head.y === array[i].y) return true;
-  }
-  return false;
+// Reiniciar juego
+function resetGame(){
+  board = ["", "", "", "", "", "", "", "", ""];
+  currentPlayer = "X";
+  gameOver = false;
+  message.textContent = "";
+  cells.forEach(cell => cell.textContent = "");
 }
-
-// Reducir velocidad: 150ms entre frames
-let game = setInterval(draw, 150);
-
-// Ajustar tamaño si cambia pantalla
-window.addEventListener("resize", () => location.reload());
 </script>
 
 </body>
