@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Viewer</title>
+    <meta name="description" content="Visualiza hojas de cálculo de Google Sheets directamente en tu navegador.">
+    <meta name="author" content="Tu Nombre">
+    <meta name="keywords" content="Google Sheets, Visualizador, Hoja de cálculo, HTML">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        iframe {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 1200px;
+            height: 600px;
+        }
+        #loading {
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+        }
+        button {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 16px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            iframe {
+                height: 400px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .dark-mode button {
+            background-color: #0056b3;
+        }
+        .dark-mode a {
+            color: #4da3ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Google Sheets Viewer</h1>
+    <button id="toggle-theme" style="position: absolute; top: 10px; right: 10px;">Modo Oscuro</button>
+    <div id="loading">Cargando la hoja de cálculo...</div>
+    <div id="progress-bar" style="width: 0%; height: 5px; background-color: #007BFF; position: fixed; top: 0; left: 0;"></div>
+    <iframe 
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQqVKfUEp06VUAo9cneVtYRyPz2JMcB2lqGCNayu25BQc03Hguzp3SXq6iTgb7k8Sl69sG9-fuv2BuW/pubhtml?gid=1566450839&single=true" 
+        frameborder="0" 
+        aria-label="Google Sheets Viewer"
+        title="Google Sheets Viewer"
+        onload="document.getElementById('loading').style.display='none';">
+    </iframe>
+    <button onclick="reloadSheet()">Recargar Hoja</button>
+    <p>
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQqVKfUEp06VUAo9cneVtYRyPz2JMcB2lqGCNayu25BQc03Hguzp3SXq6iTgb7k8Sl69sG9-fuv2BuW/pubhtml?gid=1566450839&single=true" 
+           target="_blank">
+            Abrir hoja en Google Sheets
+        </a>
+    </p>
+    <script>
+        const toggleThemeButton = document.getElementById('toggle-theme');
+        toggleThemeButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            toggleThemeButton.textContent = document.body.classList.contains('dark-mode') ? 'Modo Claro' : 'Modo Oscuro';
+        });
 
+        const iframe = document.querySelector('iframe');
+        const progressBar = document.getElementById('progress-bar');
+
+        iframe.addEventListener('load', () => {
+            progressBar.style.width = '100%';
+            setTimeout(() => progressBar.style.width = '0%', 500);
+        });
+
+        iframe.addEventListener('error', () => {
+            alert('Hubo un problema al cargar la hoja de cálculo. Por favor, verifica el enlace.');
+        });
+
+        function reloadSheet() {
+            iframe.src = iframe.src;
+            document.getElementById('loading').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
