@@ -1,1 +1,108 @@
-"Hola"
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tres en Raya</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+    #tablero {
+      display: grid;
+      grid-template-columns: repeat(3, 80px);
+      grid-template-rows: repeat(3, 80px);
+      gap: 5px;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .celda {
+      width: 80px;
+      height: 80px;
+      background: #f0f0f0;
+      font-size: 2em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #333;
+      transition: background 0.2s;
+    }
+    .celda:hover {
+      background: #e0e0e0;
+    }
+    #info {
+      margin: 18px 0;
+      font-size: 1.3em;
+    }
+    button {
+      margin-top: 15px;
+      padding: 6px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Juego de Tres en Raya</h1>
+  <div id="info"></div>
+  <div id="tablero"></div>
+  <button onclick="reiniciarJuego()">Reiniciar</button>
+  <script>
+    const tablero = document.getElementById("tablero");
+    const info = document.getElementById("info");
+    let celdas = [];
+    let jugadorActual = "X";
+    let terminado = false;
+
+    function crearTablero() {
+      tablero.innerHTML = "";
+      celdas = [];
+      for (let i = 0; i < 9; i++) {
+        const celda = document.createElement("div");
+        celda.className = "celda";
+        celda.dataset.index = i;
+        celda.onclick = () => hacerJugada(i);
+        tablero.appendChild(celda);
+        celdas.push(celda);
+      }
+      info.textContent = `Turno de: ${jugadorActual}`;
+      terminado = false;
+    }
+
+    function hacerJugada(indice) {
+      if (celdas[indice].textContent || terminado) return;
+      celdas[indice].textContent = jugadorActual;
+      if (verificarGanador()) {
+        info.textContent = `¡Ganó ${jugadorActual}!`;
+        terminado = true;
+      } else if (celdas.every(c => c.textContent)) {
+        info.textContent = "¡Empate!";
+        terminado = true;
+      } else {
+        jugadorActual = jugadorActual === "X" ? "O" : "X";
+        info.textContent = `Turno de: ${jugadorActual}`;
+      }
+    }
+
+    function verificarGanador() {
+      const combinaciones = [
+        [0,1,2],[3,4,5],[6,7,8], // filas
+        [0,3,6],[1,4,7],[2,5,8], // columnas
+        [0,4,8],[2,4,6]          // diagonales
+      ];
+      return combinaciones.some(combo => 
+        combo.every(idx => celdas[idx].textContent === jugadorActual)
+      );
+    }
+
+    function reiniciarJuego() {
+      jugadorActual = "X";
+      crearTablero();
+    }
+
+    crearTablero();
+  </script>
+</body>
+</html>
