@@ -1,606 +1,167 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Tres en línea — vs IA</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0f1724;
-    --card:#0b1220;
-    --accent:#7c3aed;
-    --muted:#9aa4b2;
-    --success:#22c55e;
-    --danger:#ef4444;
-    --glass: rgba(255,255,255,0.03);
-    --size: min(72vmin, 440px);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
-    background: radial-gradient(1200px 600px at 10% 0%, rgba(124,58,237,0.09), transparent 8%),
-                radial-gradient(900px 400px at 100% 100%, rgba(14,165,233,0.06), transparent 6%),
-                var(--bg);
-    color:#e6eef6;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-  }
-
-  .app {
-    width:100%;
-    max-width:960px;
-    display:grid;
-    grid-template-columns: 1fr 360px;
-    gap:20px;
-    align-items:start;
-  }
-
-  /* Mobile single column */
-  @media (max-width:880px){
-    .app{grid-template-columns:1fr; padding-bottom:24px}
-  }
-
-  .panel {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:14px;
-    padding:18px;
-    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
-  }
-
-  .game {
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-    align-items:center;
-  }
-
-  .header {
-    display:flex;
-    gap:12px;
-    align-items:center;
-    width:100%;
-    justify-content:space-between;
-  }
-
-  .title {
-    display:flex;
-    gap:12px;
-    align-items:center;
-  }
-
-  .logo {
-    width:42px;
-    height:42px;
-    border-radius:10px;
-    background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(14,165,233,0.12));
-    display:grid;
-    place-items:center;
-    font-weight:700;
-    font-size:18px;
-    color:var(--accent);
-    border:1px solid rgba(255,255,255,0.03);
-    backdrop-filter: blur(6px);
-  }
-
-  h1{font-size:18px;margin:0}
-  p.muted{margin:0;color:var(--muted);font-size:13px}
-
-  .board-wrap{
-    width:var(--size);
-    height:var(--size);
-    display:grid;
-    place-items:center;
-  }
-
-  .board {
-    width:92%;
-    height:92%;
-    aspect-ratio:1/1;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-    padding:10px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
-    border-radius:18px;
-    box-shadow: inset 0 2px 0 rgba(255,255,255,0.02), 0 8px 30px rgba(2,6,23,0.5);
-  }
-
-  .cell {
-    background: var(--card);
-    border-radius:12px;
-    display:grid;
-    place-items:center;
-    font-size:min(10vmin,72px);
-    font-weight:700;
-    color:rgba(230,238,246,0.95);
-    user-select:none;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    transition: transform 140ms ease, box-shadow 140ms ease;
-    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
-  }
-
-  .cell:active { transform: translateY(3px) scale(0.995) }
-  .cell.disabled { opacity:0.6; pointer-events:none; }
-
-  .cell.x { color: #ffd166; text-shadow: 0 1px 0 rgba(0,0,0,0.6) }
-  .cell.o { color: #93c5fd; text-shadow: 0 1px 0 rgba(0,0,0,0.6) }
-
-  .controls {
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    width:100%;
-  }
-
-  .row { display:flex; gap:8px; align-items:center; }
-  .btn {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border:1px solid rgba(255,255,255,0.04);
-    color:inherit;
-    padding:10px 12px;
-    border-radius:10px;
-    font-weight:600;
-    cursor:pointer;
-    display:inline-flex;
-    gap:8px;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .btn.primary{
-    background: linear-gradient(90deg, rgba(124,58,237,0.18), rgba(14,165,233,0.12));
-    border:1px solid rgba(124,58,237,0.22);
-    color: #fff;
-  }
-
-  .btn.ghost{
-    background:transparent;
-    border:1px dashed rgba(255,255,255,0.04);
-  }
-
-  .seg {
-    display:flex;
-    gap:8px;
-    padding:6px;
-    background:var(--glass);
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,0.02);
-  }
-  .seg button{min-width:44px;padding:8px;border-radius:8px}
-
-  .status {
-    display:flex;
-    gap:8px;
-    align-items:center;
-    font-weight:600;
-  }
-
-  .small { font-size:13px; color:var(--muted) }
-
-  .footer {
-    display:flex;
-    gap:10px;
-    align-items:center;
-    justify-content:space-between;
-    width:100%;
-  }
-
-  .highlight { color:var(--accent) }
-
-  .line {
-    position:absolute;
-    pointer-events:none;
-    border-radius:10px;
-    transform-origin:center;
-  }
-
-  /* result overlay */
-  .overlay {
-    position:fixed;
-    left:0;right:0;top:0;bottom:0;
-    display:grid;
-    place-items:center;
-    background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.6));
-    z-index:60;
-  }
-  .result-card {
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:14px;
-    padding:18px;
-    width:min(96%,420px);
-    text-align:center;
-    box-shadow: 0 12px 40px rgba(2,6,23,0.7);
-  }
-
-  .result-card h2{margin:6px 0 2px}
-  .result-card p{margin:0 0 12px;color:var(--muted)}
-
-  .tiny { font-size:12px;color:var(--muted) }
-
-  footer.credit{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tres en Raya contra IA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border: 2px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            cursor: pointer;
+        }
+        .cell:hover {
+            background-color: #e0e0e0;
+        }
+        #status {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        #restart {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #restart:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-  <main class="app" id="app">
-    <section class="panel game" aria-label="Juego">
-      <div class="header">
-        <div class="title">
-          <div class="logo">3T</div>
-          <div>
-            <h1>Tres en línea</h1>
-            <p class="muted">Juega contra la IA — móvil friendly</p>
-          </div>
-        </div>
-        <div class="status" id="statusText" aria-live="polite">Turno: <span class="highlight" id="turnLabel">Jugador</span></div>
-      </div>
-
-      <div class="board-wrap" aria-hidden="false">
-        <div class="board" id="board" role="grid" aria-label="Tablero 3x3">
-          <!-- cells created by JS -->
-        </div>
-      </div>
-
-      <div class="controls">
-        <div class="row">
-          <div class="seg" role="tablist" aria-label="Opciones de jugador">
-            <button class="btn ghost" id="chooseX" aria-pressed="true">X</button>
-            <button class="btn ghost" id="chooseO" aria-pressed="false">O</button>
-          </div>
-          <div style="flex:1"></div>
-          <div class="seg" aria-label="Dificultad">
-            <button class="btn ghost" id="diffEasy">Fácil</button>
-            <button class="btn primary" id="diffHard">Difícil</button>
-          </div>
-        </div>
-
-        <div class="row">
-          <button class="btn" id="btnUndo" title="Deshacer (no disponible)">Deshacer</button>
-          <button class="btn primary" id="btnRestart">Reiniciar</button>
-        </div>
-
-        <div class="row small">
-          <div style="flex:1">
-            VS IA — <span id="aiInfo">Difícil (Minimax)</span>
-          </div>
-          <div><span id="movesCount" class="tiny">Movimientos: 0</span></div>
-        </div>
-
-      </div>
-
-      <footer class="credit">Toque en una casilla para colocar su marca. IA con opción de dificultad perfecta.</footer>
-    </section>
-
-    <aside class="panel" aria-label="Panel lateral">
-      <h2 style="margin-top:0">Controles</h2>
-      <p class="small">Puedes cambiar si empiezas como <strong>X</strong> o <strong>O</strong>, y ajustar dificultad.</p>
-
-      <div style="margin-top:12px">
-        <p class="small" style="margin-bottom:6px">Estado actual</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <div class="btn ghost" id="scoreX">X: <span id="scoreXval">0</span></div>
-          <div class="btn ghost" id="scoreO">O: <span id="scoreOval">0</span></div>
-          <div class="btn ghost" id="scoreT">Empates: <span id="scoreTval">0</span></div>
-        </div>
-      </div>
-
-      <div style="margin-top:14px">
-        <p class="small" style="margin-bottom:6px">Atajos</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn" id="btnHint">Sugerencia (muestra movimiento IA)</button>
-          <button class="btn" id="btnToggleFirst">Cambiar quien inicia</button>
-        </div>
-      </div>
-
-      <div style="margin-top:18px">
-        <p class="small">Hecho con ❤️ — Interfaz táctil, animaciones y IA</p>
-      </div>
-    </aside>
-  </main>
-
-  <!-- overlay result -->
-  <div id="overlay" class="overlay" style="display:none">
-    <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
-      <h2 id="resultTitle">Resultado</h2>
-      <p id="resultMsg" class="muted"></p>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
-        <button class="btn primary" id="overlayRestart">Jugar otra vez</button>
-        <button class="btn ghost" id="overlayClose">Cerrar</button>
-      </div>
+    <h1>Tres en Raya contra IA</h1>
+    <div id="status">Turno del jugador: X</div>
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
     </div>
-  </div>
+    <button id="restart">Reiniciar Juego</button>
 
-<script>
-/*
-  Tres en línea vs IA
-  - Tablero 0..8
-  - playerMark: 'X' or 'O'
-  - aiMark opposite
-  - difficulty: 'easy' (random) or 'hard' (minimax)
-*/
+    <script>
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const status = document.getElementById('status');
+        const restartButton = document.getElementById('restart');
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
 
-const boardEl = document.getElementById('board');
-const statusText = document.getElementById('statusText');
-const turnLabel = document.getElementById('turnLabel');
-const movesCountEl = document.getElementById('movesCount');
-const overlay = document.getElementById('overlay');
-const resultMsg = document.getElementById('resultMsg');
+        // Combinaciones ganadoras
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Filas
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columnas
+            [0, 4, 8], [2, 4, 6] // Diagonales
+        ];
 
-let board = Array(9).fill(null);
-let playerMark = 'X';
-let aiMark = 'O';
-let humanTurn = true;
-let moves = 0;
-let difficulty = 'hard';
-let scores = { X:0, O:0, T:0 };
-let allowInput = true;
-let firstToMove = 'player'; // or 'ai'
+        // Manejar clic en una celda (jugador humano)
+        cells.forEach(cell => {
+            cell.addEventListener('click', () => {
+                const index = cell.getAttribute('data-index');
+                if (gameBoard[index] === '' && gameActive) {
+                    makeMove(index, 'X');
+                    if (gameActive) {
+                        setTimeout(aiMove, 500); // IA juega después de 0.5 segundos
+                    }
+                }
+            });
+        });
 
-// Winning lines
-const LINES = [
-  [0,1,2],[3,4,5],[6,7,8],
-  [0,3,6],[1,4,7],[2,5,8],
-  [0,4,8],[2,4,6]
-];
+        // Realizar un movimiento
+        function makeMove(index, player) {
+            gameBoard[index] = player;
+            cells[index].textContent = player;
+            if (checkWin(player)) {
+                status.textContent = `¡${player === 'X' ? 'Jugador' : 'IA'} gana!`;
+                gameActive = false;
+            } else if (gameBoard.every(cell => cell !== '')) {
+                status.textContent = '¡Empate!';
+                gameActive = false;
+            } else {
+                status.textContent = `Turno del ${player === 'X' ? 'IA (O)' : 'Jugador (X)'}`;
+            }
+        }
 
-function init(){
-  boardEl.innerHTML = '';
-  board = Array(9).fill(null);
-  moves = 0;
-  allowInput = true;
+        // Movimiento de la IA
+        function aiMove() {
+            // 1. Verificar si la IA puede ganar
+            let move = findBestMove('O');
+            if (move !== null) {
+                makeMove(move, 'O');
+                return;
+            }
+            // 2. Bloquear al jugador si está a punto de ganar
+            move = findBestMove('X');
+            if (move !== null) {
+                makeMove(move, 'O');
+                return;
+            }
+            // 3. Elegir una celda aleatoria
+            const emptyCells = gameBoard.reduce((acc, val, idx) => {
+                if (val === '') acc.push(idx);
+                return acc;
+            }, []);
+            if (emptyCells.length > 0) {
+                const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                makeMove(randomIndex, 'O');
+            }
+        }
 
-  for(let i=0;i<9;i++){
-    const cell = document.createElement('button');
-    cell.className = 'cell';
-    cell.setAttribute('data-index', i);
-    cell.setAttribute('role','gridcell');
-    cell.addEventListener('click', onCellClick);
-    boardEl.appendChild(cell);
-  }
-  updateUI();
-  if(firstToMove === 'ai'){
-    humanTurn = false;
-    turnLabel.textContent = 'IA';
-    setTimeout(aiMove, 350);
-  } else {
-    humanTurn = true;
-    turnLabel.textContent = 'Jugador';
-  }
-}
+        // Encontrar el mejor movimiento para ganar o bloquear
+        function findBestMove(player) {
+            for (let combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (gameBoard[a] === player && gameBoard[b] === player && gameBoard[c] === '') return c;
+                if (gameBoard[a] === player && gameBoard[c] === player && gameBoard[b] === '') return b;
+                if (gameBoard[b] === player && gameBoard[c] === player && gameBoard[a] === '') return a;
+            }
+            return null;
+        }
 
-// click handler
-function onCellClick(e){
-  if(!allowInput) return;
-  const i = Number(e.currentTarget.dataset.index);
-  if(board[i]) return;
-  if(!humanTurn) return;
-  place(i, playerMark);
-  afterMove();
-}
+        // Verificar si hay un ganador
+        function checkWin(player) {
+            return winningCombinations.some(combination => {
+                return combination.every(index => gameBoard[index] === player);
+            });
+        }
 
-// place mark
-function place(i, mark){
-  board[i] = mark;
-  moves++;
-  const cell = boardEl.querySelector(`[data-index="${i}"]`);
-  cell.classList.add(mark.toLowerCase());
-  cell.textContent = mark;
-  cell.classList.add('disabled');
-  movesCountEl.textContent = `Movimientos: ${moves}`;
-  vibrate(10);
-}
-
-// after a move: check result then let IA move if needed
-function afterMove(){
-  const r = checkResult(board);
-  if(r){
-    endGame(r);
-    return;
-  }
-  humanTurn = false;
-  turnLabel.textContent = 'IA';
-  updateUI();
-  setTimeout(aiMove, difficulty === 'easy' ? 300 : 450);
-}
-
-function aiMove(){
-  if(!allowInput) return;
-  let moveIndex = null;
-  if(difficulty === 'easy'){
-    const avail = board.map((v,i)=>v?null:i).filter(v=>v!==null);
-    moveIndex = avail[Math.floor(Math.random()*avail.length)];
-  } else {
-    moveIndex = findBestMove(board, aiMark).index;
-  }
-  if(moveIndex === undefined || moveIndex === null){
-    // no moves left
-    const r = checkResult(board);
-    if(r){ endGame(r); return; }
-    endGame({ winner: null }); return;
-  }
-  place(moveIndex, aiMark);
-  const r = checkResult(board);
-  if(r){ endGame(r); return; }
-  humanTurn = true;
-  turnLabel.textContent = 'Jugador';
-  updateUI();
-}
-
-// Check winner or draw
-function checkResult(b){
-  for(const line of LINES){
-    const [a,b1,c] = line;
-    if(b[a] && b[a] === b[b1] && b[a] === b[c]){
-      return { winner: b[a], line };
-    }
-  }
-  if(b.every(Boolean)) return { winner: null }; // draw
-  return null;
-}
-
-function endGame(result){
-  allowInput = false;
-  // highlight winning line if exists
-  if(result.line){
-    highlightLine(result.line);
-  }
-  if(result.winner === null){
-    resultMsg.textContent = 'Empate';
-    scores.T++;
-    document.getElementById('scoreTval').textContent = scores.T;
-  } else {
-    resultMsg.textContent = `Ganador: ${result.winner}`;
-    scores[result.winner]++;
-    document.getElementById(result.winner === 'X' ? 'scoreXval' : 'scoreOval').textContent = scores[result.winner];
-  }
-  showOverlay();
-}
-
-// highlight winning squares visually
-function highlightLine(line){
-  for(const idx of line){
-    const cell = boardEl.querySelector(`[data-index="${idx}"]`);
-    if(cell) cell.style.boxShadow = `0 0 0 4px rgba(124,58,237,0.12), 0 10px 30px rgba(124,58,237,0.08)`;
-  }
-}
-
-// UI updates
-function updateUI(){
-  // disable board if not player's turn
-  const allCells = boardEl.querySelectorAll('.cell');
-  allCells.forEach((c,i)=>{
-    if(board[i]) c.classList.add('disabled'); else c.classList.remove('disabled');
-  });
-  document.getElementById('aiInfo').textContent = difficulty === 'easy' ? 'Fácil (aleatorio)' : 'Difícil (Minimax)';
-}
-
-// overlay controls
-function showOverlay(){ overlay.style.display = 'grid'; }
-function hideOverlay(){ overlay.style.display = 'none'; }
-
-// Buttons
-document.getElementById('btnRestart').addEventListener('click', ()=>{ resetBoard(); });
-document.getElementById('overlayRestart').addEventListener('click', ()=>{ resetBoard(); hideOverlay(); });
-document.getElementById('overlayClose').addEventListener('click', ()=>{ hideOverlay(); });
-
-document.getElementById('chooseX').addEventListener('click', ()=>{
-  playerMark = 'X'; aiMark = 'O';
-  setPlayerBtns();
-  resetBoard();
-});
-document.getElementById('chooseO').addEventListener('click', ()=>{
-  playerMark = 'O'; aiMark = 'X';
-  setPlayerBtns();
-  resetBoard();
-});
-
-document.getElementById('diffEasy').addEventListener('click', ()=>{
-  difficulty = 'easy';
-  document.getElementById('diffEasy').classList.add('primary');
-  document.getElementById('diffHard').classList.remove('primary');
-  resetBoard();
-});
-document.getElementById('diffHard').addEventListener('click', ()=>{
-  difficulty = 'hard';
-  document.getElementById('diffHard').classList.add('primary');
-  document.getElementById('diffEasy').classList.remove('primary');
-  resetBoard();
-});
-
-document.getElementById('btnHint').addEventListener('click', ()=>{
-  const best = difficulty === 'easy' ? getRandomMove() : findBestMove(board, aiMark).index;
-  if(best !== undefined) {
-    // flash suggested cell
-    const cell = boardEl.querySelector(`[data-index="${best}"]`);
-    if(cell){
-      cell.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:450});
-    }
-  }
-});
-document.getElementById('btnToggleFirst').addEventListener('click', ()=>{
-  firstToMove = firstToMove === 'player' ? 'ai' : 'player';
-  resetBoard();
-});
-
-function setPlayerBtns(){
-  document.getElementById('chooseX').setAttribute('aria-pressed', playerMark === 'X');
-  document.getElementById('chooseO').setAttribute('aria-pressed', playerMark === 'O');
-  document.getElementById('chooseX').classList.toggle('primary', playerMark === 'X');
-  document.getElementById('chooseO').classList.toggle('primary', playerMark === 'O');
-}
-
-// helper: get random available
-function getRandomMove(){
-  const avail = board.map((v,i)=>v?null:i).filter(v=>v!==null);
-  return avail.length ? avail[Math.floor(Math.random()*avail.length)] : null;
-}
-
-// reset board but keep scores and settings
-function resetBoard(){
-  // clear visual highlights
-  document.querySelectorAll('.cell').forEach(c=>{
-    c.style.boxShadow = '';
-  });
-  init();
-}
-
-// vibration helper
-function vibrate(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
-
-// MINIMAX implementation (optimal AI)
-function findBestMove(bd, player){
-  // returns {index, score}
-  const avail = bd.map((v,i)=>v?null:i).filter(v=>v!==null);
-  // check for terminal states
-  const term = checkResult(bd);
-  if(term){
-    if(term.winner === aiMark) return {score: +10};
-    if(term.winner === playerMark) return {score: -10};
-    return {score: 0};
-  }
-
-  const movesList = [];
-  for(const i of avail){
-    const newBoard = bd.slice();
-    newBoard[i] = player;
-    const nextPlayer = (player === 'X') ? 'O' : 'X';
-    const result = findBestMove(newBoard, nextPlayer);
-    movesList.push({index:i, score: result.score});
-  }
-
-  // If current player is AI, choose max; if human choose min
-  if(player === aiMark){
-    // maximize
-    let best = movesList[0];
-    for(const m of movesList) if(m.score > best.score) best = m;
-    return best;
-  } else {
-    // minimize
-    let best = movesList[0];
-    for(const m of movesList) if(m.score < best.score) best = m;
-    return best;
-  }
-}
-
-// initialize UI states
-setPlayerBtns();
-document.getElementById('diffHard').classList.add('primary');
-init();
-
-// accessibility: close overlay on Escape
-window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') hideOverlay(); });
-
-// small polish: disable undo (placeholder)
-document.getElementById('btnUndo').addEventListener('click', ()=>{
-  alert('Deshacer no disponible en esta versión. Reinicia para comenzar de nuevo.');
-});
-</script>
+        // Reiniciar el juego
+        restartButton.addEventListener('click', () => {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            status.textContent = 'Turno del Jugador: X';
+            cells.forEach(cell => {
+                cell.textContent = '';
+            });
+        });
+    </script>
 </body>
 </html>
