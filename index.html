@@ -1,242 +1,224 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Tres en Raya Móvil</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tres en raya</title>
   <style>
-    body {
-      background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%);
-      min-height: 100vh;
-      margin: 0;
-      font-family: 'Montserrat', Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-    .container {
-      background: rgba(255,255,255,0.2);
-      box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
-      backdrop-filter: blur(7px);
-      border-radius: 20px;
-      padding: 40px 16px 32px 16px;
-      width: 92vw;
-      max-width: 390px;
-      min-width: 280px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 {
-      color: #222;
-      margin-bottom: 10px;
-      font-size: 2em;
-      letter-spacing: 1px;
-      text-shadow: 0 2px 6px #fff7;
-    }
-    #info {
-      color: #3c3c3c;
-      font-size: 1.15em;
-      margin-bottom: 18px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-align: center;
-    }
-    #tablero {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-      width: 90vw;
-      max-width: 330px;
-      aspect-ratio: 1 / 1;
-      touch-action: manipulation;
-    }
-    .celda {
-      width: 100%;
-      height: 0;
-      padding-bottom: 100%; /* Square cells */
-      background: rgba(255,255,255,0.85);
-      border-radius: 16px;
-      box-shadow: 0 4px 14px 0 rgba(68,68,68,0.09);
-      font-size: 2.3em;
-      color: #24b6ff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s, color 0.2s, transform 0.1s;
-      user-select: none;
-      font-weight: bold;
-      position: relative;
-      overflow: hidden;
-    }
-    .celda span {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-    .celda.x span {
-      color: #ff5b5b;
-      text-shadow: 0 2px 8px #ff5b5b55;
-    }
-    .celda.o span {
-      color: #2ed573;
-      text-shadow: 0 2px 8px #2ed57355;
-    }
-    .celda:hover {
-      background: #e4f9ff;
-      transform: scale(1.03);
-    }
-    .celda.ganadora {
-      background: linear-gradient(135deg, #ffe29f 0%, #ffa99f 100%);
-      box-shadow: 0 0 16px #ffa99f66;
-      animation: winner 0.7s alternate infinite;
-    }
-    @keyframes winner {
-      to { box-shadow: 0 0 32px #ffa99f99; }
-    }
-    button {
-      background: linear-gradient(90deg, #24b6ff 0%, #2ed573 100%);
-      color: white;
-      border: none;
-      border-radius: 16px;
-      padding: 14px 28px;
-      font-size: 1.08em;
-      font-family: 'Montserrat', Arial, sans-serif;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 2px 10px #24b6ff33;
-      transition: background 0.18s, transform 0.12s;
-      outline: none;
-      margin-top: 8px;
-      width: 100%;
-      max-width: 250px;
-    }
-    button:active {
-      transform: scale(0.97);
-    }
-    button:hover {
-      background: linear-gradient(90deg, #2ed573 0%, #24b6ff 100%);
-      transform: scale(1.04);
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 18px 4vw 22px 4vw;
-        min-width: 0;
-        width: 98vw;
-        max-width: none;
-      }
-      h1 {
-        font-size: 1.3em;
-        margin-bottom: 8px;
-      }
-      #tablero {
-        max-width: 98vw;
-        gap: 7px;
-      }
-      .celda {
-        font-size: 1.6em;
-        border-radius: 12px;
-      }
-      button {
-        font-size: 1em;
-        padding: 12px 0;
-        max-width: 98vw;
-      }
-    }
-    @media (max-width: 400px) {
-      h1 {
-        font-size: 1em;
-      }
-      .celda {
-        font-size: 1em;
-      }
-    }
+    :root{--bg:#1e1e2f;--card:#2a2a40;--accent:#4ade80;--muted:#cbd5e1;--win:#facc15}
+    *{box-sizing:border-box;transition:all 0.2s ease}
+    body{font-family:'Poppins', sans-serif; margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1f2937 0%, #111827 100%);color:#f1f5f9}
+    .wrap{width:100%;max-width:720px;padding:24px}
+    .card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);padding:18px;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.4)}
+    h1{margin:0 0 8px;font-size:24px;font-weight:600}
+    p.lead{margin:0 0 12px;color:var(--muted);font-size:14px}
+    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.1);color:inherit;padding:8px 12px;border-radius:10px;cursor:pointer}
+    button:hover{background:rgba(255,255,255,0.08)}
+    button.primary{background:var(--accent);border:0;color:#042018}
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px;background:rgba(255,255,255,0.05);border-radius:14px}
+    .cell{background:rgba(255,255,255,0.03);height:110px;display:flex;align-items:center;justify-content:center;font-size:40px;border-radius:12px;user-select:none;cursor:pointer}
+    .cell:hover{background:rgba(255,255,255,0.08)}
+    @media (max-width:600px){
+    .wrap{padding:12px}
+    h1{font-size:20px}
+    .board{gap:6px;padding:10px}
+    .cell{height:70px;font-size:28px}
+    button{padding:6px 10px;font-size:12px}
+  }}
+    .status{margin-top:12px;display:flex;align-items:center;justify-content:space-between}
+    .score{display:flex;gap:12px;font-size:14px;color:var(--muted)}
+    .line{height:4px;background:transparent;border-radius:4px;margin-top:12px}
+    .winner{color:var(--win);font-weight:600}
+    .highlight{background:linear-gradient(90deg, rgba(250,204,21,0.2), rgba(250,204,21,0.1));}
+    .small{font-size:13px;color:var(--muted)}
+    .footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Tres en Raya</h1>
-    <div id="info"></div>
-    <div id="tablero"></div>
-    <button onclick="reiniciarJuego()">Reiniciar</button>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div>
+          <h1>Tres en raya</h1>
+          <p class="lead">Juega con otra persona o contra la IA (modo fácil). Haz clic en una casilla para colocar tu ficha.</p>
+        </div>
+        <div class="controls">
+          <label class="small">IA:</label>
+          <select id="mode">
+            <option value="pvp">2 jugadores</option>
+            <option value="pvc">Contra IA (fácil)</option>
+          </select>
+          <button id="restart">Reiniciar</button>
+          <button id="resetScores">Reset scores</button>
+        </div>
+      </div>
+
+      <div id="board" class="board" aria-label="Tablero tres en raya">
+        <!-- 9 casillas generadas por JS -->
+      </div>
+
+      <div class="status">
+        <div class="score">
+          <div>Jugador X: <span id="scoreX">0</span></div>
+          <div>Jugador O: <span id="scoreO">0</span></div>
+          <div>Empates: <span id="scoreT">0</span></div>
+        </div>
+        <div>
+          <div id="message" class="small">Turno de <span id="turn">X</span></div>
+        </div>
+      </div>
+
+      <div class="line"></div>
+      <div class="footer">Hecho con ❤️ — comentarios o mejoras bienvenidas.</div>
+    </div>
   </div>
+
   <script>
-    const tablero = document.getElementById("tablero");
-    const info = document.getElementById("info");
-    let celdas = [];
-    let jugadorActual = "X";
-    let terminado = false;
+    // Lógica del juego
+    const boardEl = document.getElementById('board');
+    const messageEl = document.getElementById('message');
+    const turnEl = document.getElementById('turn');
+    const modeEl = document.getElementById('mode');
+    const restartBtn = document.getElementById('restart');
+    const resetScoresBtn = document.getElementById('resetScores');
+    const scoreXEl = document.getElementById('scoreX');
+    const scoreOEl = document.getElementById('scoreO');
+    const scoreTEl = document.getElementById('scoreT');
 
-    function crearTablero() {
-      tablero.innerHTML = "";
-      celdas = [];
-      for (let i = 0; i < 9; i++) {
-        const celda = document.createElement("div");
-        celda.className = "celda";
-        celda.dataset.index = i;
-        celda.onclick = () => hacerJugada(i);
-        celda.innerHTML = `<span></span>`;
-        tablero.appendChild(celda);
-        celdas.push(celda);
-      }
-      info.textContent = `Turno de: ${jugadorActual}`;
-      terminado = false;
+    let board = Array(9).fill('');
+    let turn = 'X';
+    let playing = true;
+    let scores = { X:0, O:0, T:0 };
+
+    const wins = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    function renderBoard(){
+      boardEl.innerHTML = '';
+      board.forEach((val,i)=>{
+        const div = document.createElement('div');
+        div.className = 'cell';
+        div.dataset.index = i;
+        div.setAttribute('role','button');
+        div.setAttribute('aria-label', 'Casilla ' + (i+1));
+        div.textContent = val;
+        if(!val && playing){
+          div.addEventListener('click', onCellClick);
+        }
+        boardEl.appendChild(div);
+      });
+      turnEl.textContent = turn;
     }
 
-    function hacerJugada(indice) {
-      if (celdas[indice].querySelector('span').textContent || terminado) return;
-      celdas[indice].querySelector('span').textContent = jugadorActual;
-      celdas[indice].classList.add(jugadorActual.toLowerCase());
-      const resultado = verificarGanador();
-      if (resultado.ganador) {
-        info.textContent = `¡Ganó ${jugadorActual}!`;
-        terminado = true;
-        resaltarGanador(resultado.combinacion);
-      } else if (celdas.every(c => c.querySelector('span').textContent)) {
-        info.textContent = "¡Empate!";
-        terminado = true;
-      } else {
-        jugadorActual = jugadorActual === "X" ? "O" : "X";
-        info.textContent = `Turno de: ${jugadorActual}`;
+    function onCellClick(e){
+      const i = Number(e.currentTarget.dataset.index);
+      if(!playing || board[i]) return;
+      makeMove(i, turn);
+      if(modeEl.value === 'pvc' && playing){
+        // turno de la IA simple: mueve aleatoriamente después de 300ms
+        setTimeout(()=>{ aiMove(); }, 300);
       }
     }
 
-    function verificarGanador() {
-      const combinaciones = [
-        [0,1,2],[3,4,5],[6,7,8], // filas
-        [0,3,6],[1,4,7],[2,5,8], // columnas
-        [0,4,8],[2,4,6]          // diagonales
-      ];
-      for (let combo of combinaciones) {
-        if (combo.every(idx => celdas[idx].querySelector('span').textContent === jugadorActual)) {
-          return { ganador: true, combinacion: combo };
+    function makeMove(index, player){
+      if(board[index] || !playing) return;
+      board[index] = player;
+      checkState();
+      if(playing) switchTurn();
+      renderBoard();
+    }
+
+    function switchTurn(){ turn = (turn === 'X') ? 'O' : 'X'; turnEl.textContent = turn; }
+
+    function checkState(){
+      // comprobar victoria
+      for(const [a,b,c] of wins){
+        if(board[a] && board[a] === board[b] && board[b] === board[c]){
+          // hay ganador
+          playing = false;
+          highlightWinning([a,b,c]);
+          messageEl.innerHTML = 'Ganador: <span class="winner">' + board[a] + '</span>';
+          scores[board[a]]++;
+          updateScores();
+          return;
         }
       }
-      return { ganador: false };
+      // comprobar empate
+      if(board.every(cell => cell)){
+        playing = false;
+        messageEl.textContent = 'Empate.';
+        scores.T++;
+        updateScores();
+      }
     }
 
-    function resaltarGanador(combinacion) {
-      combinacion.forEach(idx => {
-        celdas[idx].classList.add("ganadora");
+    function highlightWinning(indices){
+      indices.forEach(i=>{
+        const el = boardEl.querySelector('[data-index="'+i+'"]');
+        if(el) el.classList.add('highlight');
       });
     }
 
-    function reiniciarJuego() {
-      jugadorActual = "X";
-      crearTablero();
+    function updateScores(){
+      scoreXEl.textContent = scores.X;
+      scoreOEl.textContent = scores.O;
+      scoreTEl.textContent = scores.T;
     }
 
-    crearTablero();
+    function restart(){
+      board = Array(9).fill('');
+      turn = 'X';
+      playing = true;
+      messageEl.textContent = 'Turno de ' + turn;
+      renderBoard();
+    }
+
+    function resetScores(){ scores = {X:0,O:0,T:0}; updateScores(); }
+
+    // IA simple: elige una casilla libre al azar.
+    function aiMove(){
+      if(!playing) return;
+      const free = board.map((v,i)=> v ? null : i).filter(v=>v!==null);
+      if(!free.length) return;
+      // Intentar una jugada ganadora o bloquear al oponente (heurística sencilla)
+      let chosen = null;
+
+      // 1) ¿puede IA (O) ganar ahora?
+      chosen = findWinningMove('O');
+      // 2) ¿debe bloquear a X?
+      if(chosen === null) chosen = findWinningMove('X');
+      // 3) si no, esquina centro esquina.
+      if(chosen === null){
+        const preferred = [4,0,2,6,8,1,3,5,7];
+        chosen = preferred.find(i=> board[i]==='');
+      }
+      if(chosen!==null) makeMove(chosen,'O');
+    }
+
+    function findWinningMove(player){
+      for(const [a,b,c] of wins){
+        const vals = [board[a], board[b], board[c]];
+        if(vals.filter(v=>v===player).length===2 && vals.includes('')){
+          const emptyIndex = [a,b,c].find(i=> board[i]==='');
+          return emptyIndex;
+        }
+      }
+      return null;
+    }
+
+    // listeners
+    restartBtn.addEventListener('click', ()=>{ restart(); });
+    resetScoresBtn.addEventListener('click', ()=>{ resetScores(); });
+    modeEl.addEventListener('change', ()=>{ restart(); });
+
+    // inicialización
+    renderBoard();
+
   </script>
 </body>
 </html>
