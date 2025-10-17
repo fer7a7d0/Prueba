@@ -94,24 +94,4 @@
             ],
             scores: {
                 player: parseInt(localStorage.getItem('playerScore') || '0'),
-                ai: parseInt(localStorage.getItem('aiScore') || '0')
-            },
-
-            init() {
-                if (!this.statusElement || !this.scoresElement || this.cells.length !== 9) {
-                    console.error('Error: Elementos del DOM no encontrados.');
-                    return;
-                }
-                this.cells.forEach(cell => {
-                    cell.addEventListener('click', () => this.handleCellClick(cell));
-                    cell.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') this.handleCellClick(cell);
-                    });
-                });
-                document.getElementById('restart').addEventListener('click', () => this.restartGame());
-                this.updateScores();
-                this.updateStatus();
-            },
-
-            handleCellClick(cell) {
-                if (!this.gameActive || this.currentPlayer !== 'X') return
+                ai: parseInt(localStorage.getItem('aiScore
