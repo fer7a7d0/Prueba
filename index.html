@@ -55,20 +55,13 @@
             font-size: 16px;
         }
         #counters {
-            margin-top: 10px;
+            margin-top: 15px;
             font-size: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Tres en Raya contra IA</h1>
-
-    <!-- Contadores de victorias -->
-    <div id="counters">
-        Jugador: <span id="playerWins">0</span> | 
-        IA: <span id="aiWins">0</span> | 
-        Empates: <span id="draws">0</span>
-    </div>
 
     <!-- Selector de dificultad -->
     <label for="difficulty">Dificultad:</label>
@@ -89,6 +82,14 @@
         <div class="cell" data-index="7"></div>
         <div class="cell" data-index="8"></div>
     </div>
+
+    <!-- Contadores de victorias debajo del tablero -->
+    <div id="counters">
+        Jugador (X): <span id="playerWins">0</span> | 
+        IA (O): <span id="aiWins">0</span> | 
+        Empates: <span id="draws">0</span>
+    </div>
+
     <button id="restart">Reiniciar Juego</button>
 
     <script>
@@ -98,7 +99,6 @@
         const restartButton = document.getElementById('restart');
         const difficultySelect = document.getElementById('difficulty');
 
-        // Contadores
         const playerWinsEl = document.getElementById('playerWins');
         const aiWinsEl = document.getElementById('aiWins');
         const drawsEl = document.getElementById('draws');
@@ -116,6 +116,9 @@
             [0, 4, 8], [2, 4, 6]
         ];
 
+        // Quién empieza la siguiente partida (true = jugador, false = IA)
+        let nextStarter = true;
+
         // Clic del jugador
         cells.forEach(cell => {
             cell.addEventListener('click', () => {
@@ -129,7 +132,6 @@
             });
         });
 
-        // Movimiento general
         function makeMove(index, player) {
             gameBoard[index] = player;
             cells[index].textContent = player;
@@ -138,16 +140,18 @@
                 status.textContent = `¡${player === 'X' ? 'Jugador' : 'IA'} gana!`;
                 gameActive = false;
                 updateCounters(player);
+                // El ganador empieza la siguiente
+                nextStarter = (player === 'X');
             } else if (gameBoard.every(cell => cell !== '')) {
                 status.textContent = '¡Empate!';
                 gameActive = false;
                 updateCounters('Draw');
+                // Mantener mismo starter si hubo empate
             } else {
                 status.textContent = `Turno del ${player === 'X' ? 'IA (O)' : 'Jugador (X)'}`;
             }
         }
 
-        // Actualizar contadores
         function updateCounters(winner) {
             if (winner === 'X') {
                 playerWins++;
@@ -161,7 +165,6 @@
             }
         }
 
-        // IA según dificultad
         function aiMove() {
             const difficulty = difficultySelect.value;
             if (difficulty === 'easy') {
@@ -173,15 +176,9 @@
 
         function easyAi() {
             let move = findBestMove('O');
-            if (move !== null) {
-                makeMove(move, 'O');
-                return;
-            }
+            if (move !== null) { makeMove(move, 'O'); return; }
             move = findBestMove('X');
-            if (move !== null) {
-                makeMove(move, 'O');
-                return;
-            }
+            if (move !== null) { makeMove(move, 'O'); return; }
             const emptyCells = gameBoard.reduce((acc, val, idx) => {
                 if (val === '') acc.push(idx);
                 return acc;
@@ -211,11 +208,7 @@
                 move.index = emptyCells[i];
                 newBoard[emptyCells[i]] = player;
 
-                if (player === 'O') {
-                    move.score = minimax(newBoard, 'X').score;
-                } else {
-                    move.score = minimax(newBoard, 'O').score;
-                }
+                move.score = (player === 'O') ? minimax(newBoard, 'X').score : minimax(newBoard, 'O').score;
 
                 newBoard[emptyCells[i]] = '';
                 moves.push(move);
@@ -243,9 +236,7 @@
         }
 
         function checkWinState(boardState, player) {
-            return winningCombinations.some(combination => {
-                return combination.every(index => boardState[index] === player);
-            });
+            return winningCombinations.some(combination => combination.every(index => boardState[index] === player));
         }
 
         function findBestMove(player) {
@@ -259,18 +250,27 @@
         }
 
         function checkWin(player) {
-            return winningCombinations.some(combination => {
-                return combination.every(index => gameBoard[index] === player);
-            });
+            return winningCombinations.some(combination => combination.every(index => gameBoard[index] === player));
         }
 
         restartButton.addEventListener('click', () => {
             gameBoard = ['', '', '', '', '', '', '', '', ''];
             gameActive = true;
-            status.textContent = 'Turno del Jugador: X';
-            cells.forEach(cell => {
-                cell.textContent = '';
-            });
+            cells.forEach(cell => { cell.textContent = ''; });
+
+            // Determinar quién empieza
+            if (!nextStarter) {
+                // IA empieza
+                status.textContent = "Turno de IA (O)";
+                setTimeout(aiMove, 500);
+            } else {
+                status.textContent = "Turno del jugador: X";
+            }
+        });
+
+        // Inicia primera partida con el jugador
+        window.addEventListener('load', () => {
+            nextStarter = true;
         });
     </script>
 </body>
