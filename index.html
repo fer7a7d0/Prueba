@@ -11,46 +11,35 @@
             flex-direction: column;
             align-items: center;
             background-color: #f0f0f0;
-            margin: 0;
         }
         .board {
             display: grid;
-            grid-template-columns: repeat(3, minmax(80px, 20vw));
-            grid-gap: 0.5rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin-top: 20px;
         }
         .cell {
-            width: 100%;
-            height: 0;
-            padding-bottom: 100%;
+            width: 100px;
+            height: 100px;
             background-color: white;
             border: 2px solid #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: clamp(2rem, 5vw, 3rem);
+            font-size: 40px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
         .cell:hover {
             background-color: #e0e0e0;
         }
-        .cell.winner {
-            background-color: #4CAF50;
-            color: white;
-        }
         #status {
-            font-size: 1.5rem;
-            margin-top: 1rem;
-        }
-        #scores {
-            font-size: 1.2rem;
-            margin-top: 0.5rem;
+            font-size: 24px;
+            margin-top: 20px;
         }
         #restart {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
@@ -60,202 +49,205 @@
         #restart:hover {
             background-color: #45a049;
         }
+        #difficulty {
+            margin-top: 15px;
+            padding: 5px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <h1>Tres en Raya contra IA</h1>
+
+    <!-- Selector de dificultad -->
+    <label for="difficulty">Dificultad:</label>
+    <select id="difficulty">
+        <option value="easy">Fácil</option>
+        <option value="hard">Difícil</option>
+    </select>
+
     <div id="status">Turno del jugador: X</div>
-    <div id="scores">Jugador: 0 | IA: 0</div>
     <div class="board" id="board">
-        <div class="cell" data-index="0" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="1" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="2" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="3" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="4" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="5" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="6" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="7" role="button" aria-label="Celda vacía" tabindex="0"></div>
-        <div class="cell" data-index="8" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
     </div>
     <button id="restart">Reiniciar Juego</button>
 
     <script>
-        const TicTacToe = {
-            board: ['', '', '', '', '', '', '', '', ''],
-            gameActive: true,
-            currentPlayer: 'X',
-            statusElement: document.getElementById('status'),
-            scoresElement: document.getElementById('scores'),
-            cells: document.querySelectorAll('.cell'),
-            winningCombinations: [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Filas
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columnas
-                [0, 4, 8], [2, 4, 6] // Diagonales
-            ],
-            scores: {
-                player: parseInt(localStorage.getItem('playerScore') || '0'),
-                ai: parseInt(localStorage.getItem('aiScore') || '0')
-            },
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const status = document.getElementById('status');
+        const restartButton = document.getElementById('restart');
+        const difficultySelect = document.getElementById('difficulty');
 
-            init() {
-                console.log('Iniciando juego...');
-                if (!this.statusElement || !this.scoresElement || this.cells.length !== 9) {
-                    console.error('Error: Elementos del DOM no encontrados.');
-                    return;
-                }
-                this.cells.forEach(cell => {
-                    cell.style.pointerEvents = 'auto';
-                    console.log(`Añadiendo listener a celda ${cell.getAttribute('data-index')}`);
-                    cell.addEventListener('click', () => {
-                        console.log(`Clic en celda ${cell.getAttribute('data-index')}`);
-                        this.handleCellClick(cell);
-                    });
-                    cell.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            console.log(`Tecla presionada en celda ${cell.getAttribute('data-index')}`);
-                            this.handleCellClick(cell);
-                        }
-                    });
-                });
-                document.getElementById('restart').addEventListener('click', () => {
-                    console.log('Reiniciando juego...');
-                    this.restartGame();
-                });
-                this.updateScores();
-                this.updateStatus();
-            },
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
 
-            handleCellClick(cell) {
-                console.log(`Estado: gameActive=${this.gameActive}, currentPlayer=${this.currentPlayer}`);
-                if (!this.gameActive || this.currentPlayer !== 'X') {
-                    console.log('Movimiento bloqueado: Juego inactivo o no es turno del jugador');
-                    return;
-                }
-                const index = parseInt(cell.getAttribute('data-index'));
-                if (isNaN(index) || index < 0 || index > 8 || this.board[index] !== '') {
-                    console.log(`Movimiento inválido: index=${index}, celda=${this.board[index]}`);
-                    return;
-                }
-                console.log(`Jugador coloca X en celda ${index}`);
-                this.makeMove(index, 'X');
-                if (this.gameActive) {
-                    this.currentPlayer = 'O';
-                    this.aiMove();
-                }
-            },
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Filas
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columnas
+            [0, 4, 8], [2, 4, 6] // Diagonales
+        ];
 
-            makeMove(index, player) {
-                this.board[index] = player;
-                this.cells[index].textContent = player;
-                this.cells[index].setAttribute('aria-label', `Celda ocupada por ${player}`);
-                if (this.checkWin(player)) {
-                    this.statusElement.textContent = `¡${player === 'X' ? 'Jugador' : 'IA'} gana!`;
-                    this.updateScores(player === 'X' ? 'player' : 'ai');
-                    this.gameActive = false;
-                } else if (this.board.every(cell => cell !== '')) {
-                    this.statusElement.textContent = '¡Empate!';
-                    this.gameActive = false;
-                } else {
-                    this.updateStatus();
-                }
-            },
-
-            aiMove() {
-                console.log('Turno de la IA...');
-                this.cells.forEach(cell => cell.style.pointerEvents = 'none');
-                const bestMove = this.getBestMove();
-                if (bestMove !== null) {
-                    console.log(`IA coloca O en celda ${bestMove}`);
-                    this.makeMove(bestMove, 'O');
-                    this.currentPlayer = 'X';
-                }
-                this.cells.forEach(cell => cell.style.pointerEvents = 'auto');
-            },
-
-            getBestMove() {
-                let bestScore = -Infinity;
-                let bestMove = null;
-                for (let i = 0; i < this.board.length; i++) {
-                    if (this.board[i] === '') {
-                        this.board[i] = 'O';
-                        const score = this.minimax(this.board, 0, false);
-                        this.board[i] = '';
-                        if (score > bestScore) {
-                            bestScore = score;
-                            bestMove = i;
-                        }
+        // Clic del jugador
+        cells.forEach(cell => {
+            cell.addEventListener('click', () => {
+                const index = cell.getAttribute('data-index');
+                if (gameBoard[index] === '' && gameActive) {
+                    makeMove(index, 'X');
+                    if (gameActive) {
+                        setTimeout(aiMove, 500);
                     }
                 }
-                return bestMove;
-            },
+            });
+        });
 
-            minimax(board, depth, isMaximizing) {
-                const winner = this.checkWin('O') ? 10 - depth : this.checkWin('X') ? depth - 10 : board.every(cell => cell !== '') ? 0 : null;
-                if (winner !== null) return winner;
-
-                if (isMaximizing) {
-                    let bestScore = -Infinity;
-                    for (let i = 0; i < board.length; i++) {
-                        if (board[i] === '') {
-                            board[i] = 'O';
-                            const score = this.minimax(board, depth + 1, false);
-                            board[i] = '';
-                            bestScore = Math.max(score, bestScore);
-                        }
-                    }
-                    return bestScore;
-                } else {
-                    let bestScore = Infinity;
-                    for (let i = 0; i < board.length; i++) {
-                        if (board[i] === '') {
-                            board[i] = 'X';
-                            const score = this.minimax(board, depth + 1, true);
-                            board[i] = '';
-                            bestScore = Math.min(score, bestScore);
-                        }
-                    }
-                    return bestScore;
-                }
-            },
-
-            checkWin(player) {
-                for (const combination of this.winningCombinations) {
-                    if (combination.every(index => this.board[index] === player)) {
-                        combination.forEach(index => this.cells[index].classList.add('winner'));
-                        return true;
-                    }
-                }
-                return false;
-            },
-
-            restartGame() {
-                this.board = ['', '', '', '', '', '', '', '', ''];
-                this.gameActive = true;
-                this.currentPlayer = 'X';
-                this.cells.forEach(cell => {
-                    cell.textContent = '';
-                    cell.classList.remove('winner');
-                    cell.setAttribute('aria-label', 'Celda vacía');
-                    cell.style.pointerEvents = 'auto';
-                });
-                this.updateStatus();
-            },
-
-            updateStatus() {
-                this.statusElement.textContent = `Turno del ${this.currentPlayer === 'X' ? 'Jugador (X)' : 'IA (O)'}`;
-            },
-
-            updateScores(winner) {
-                if (winner) {
-                    this.scores[winner]++;
-                    localStorage.setItem('playerScore', this.scores.player);
-                    localStorage.setItem('aiScore', this.scores.ai);
-                }
-                this.scoresElement.textContent = `Jugador: ${this.scores.player} | IA: ${this.scores.ai}`;
+        // Movimiento general
+        function makeMove(index, player) {
+            gameBoard[index] = player;
+            cells[index].textContent = player;
+            if (checkWin(player)) {
+                status.textContent = `¡${player === 'X' ? 'Jugador' : 'IA'} gana!`;
+                gameActive = false;
+            } else if (gameBoard.every(cell => cell !== '')) {
+                status.textContent = '¡Empate!';
+                gameActive = false;
+            } else {
+                status.textContent = `Turno del ${player === 'X' ? 'IA (O)' : 'Jugador (X)'}`;
             }
-        };
+        }
 
-        TicTacToe.init();
+        // IA con selector de dificultad
+        function aiMove() {
+            const difficulty = difficultySelect.value;
+
+            if (difficulty === 'easy') {
+                easyAi();
+            } else {
+                hardAi();
+            }
+        }
+
+        // IA Fácil (tu lógica original)
+        function easyAi() {
+            let move = findBestMove('O');
+            if (move !== null) {
+                makeMove(move, 'O');
+                return;
+            }
+            move = findBestMove('X');
+            if (move !== null) {
+                makeMove(move, 'O');
+                return;
+            }
+            const emptyCells = gameBoard.reduce((acc, val, idx) => {
+                if (val === '') acc.push(idx);
+                return acc;
+            }, []);
+            if (emptyCells.length > 0) {
+                const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                makeMove(randomIndex, 'O');
+            }
+        }
+
+        // IA Difícil con minimax
+        function hardAi() {
+            const bestMove = minimax(gameBoard, 'O').index;
+            makeMove(bestMove, 'O');
+        }
+
+        function minimax(newBoard, player) {
+            const emptyCells = newBoard.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
+
+            if (checkWinState(newBoard, 'X')) {
+                return { score: -10 };
+            } else if (checkWinState(newBoard, 'O')) {
+                return { score: 10 };
+            } else if (emptyCells.length === 0) {
+                return { score: 0 };
+            }
+
+            const moves = [];
+
+            for (let i = 0; i < emptyCells.length; i++) {
+                const move = {};
+                move.index = emptyCells[i];
+                newBoard[emptyCells[i]] = player;
+
+                if (player === 'O') {
+                    const result = minimax(newBoard, 'X');
+                    move.score = result.score;
+                } else {
+                    const result = minimax(newBoard, 'O');
+                    move.score = result.score;
+                }
+
+                newBoard[emptyCells[i]] = '';
+                moves.push(move);
+            }
+
+            let bestMove;
+            if (player === 'O') {
+                let bestScore = -Infinity;
+                for (let i = 0; i < moves.length; i++) {
+                    if (moves[i].score > bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < moves.length; i++) {
+                    if (moves[i].score < bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            }
+            return moves[bestMove];
+        }
+
+        // Verifica victoria en minimax sin afectar el juego real
+        function checkWinState(boardState, player) {
+            return winningCombinations.some(combination => {
+                return combination.every(index => boardState[index] === player);
+            });
+        }
+
+        // Lógica ganar/bloquear para modo fácil
+        function findBestMove(player) {
+            for (let combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (gameBoard[a] === player && gameBoard[b] === player && gameBoard[c] === '') return c;
+                if (gameBoard[a] === player && gameBoard[c] === player && gameBoard[b] === '') return b;
+                if (gameBoard[b] === player && gameBoard[c] === player && gameBoard[a] === '') return a;
+            }
+            return null;
+        }
+
+        // Verifica victoria en el juego real
+        function checkWin(player) {
+            return winningCombinations.some(combination => {
+                return combination.every(index => gameBoard[index] === player);
+            });
+        }
+
+        // Reiniciar
+        restartButton.addEventListener('click', () => {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            status.textContent = 'Turno del Jugador: X';
+            cells.forEach(cell => {
+                cell.textContent = '';
+            });
+        });
     </script>
 </body>
 </html>
