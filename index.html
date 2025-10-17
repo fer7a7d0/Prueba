@@ -11,35 +11,46 @@
             flex-direction: column;
             align-items: center;
             background-color: #f0f0f0;
+            margin: 0;
         }
         .board {
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-gap: 5px;
-            margin-top: 20px;
+            grid-template-columns: repeat(3, minmax(80px, 20vw));
+            grid-gap: 0.5rem;
+            margin-top: 2rem;
         }
         .cell {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%;
             background-color: white;
             border: 2px solid #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 40px;
+            font-size: clamp(2rem, 5vw, 3rem);
             cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
         }
         .cell:hover {
             background-color: #e0e0e0;
         }
+        .cell.winner {
+            background-color: #4CAF50;
+            color: white;
+        }
         #status {
-            font-size: 24px;
-            margin-top: 20px;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+        }
+        #scores {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
         }
         #restart {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
@@ -54,114 +65,53 @@
 <body>
     <h1>Tres en Raya contra IA</h1>
     <div id="status">Turno del jugador: X</div>
+    <div id="scores">Jugador: 0 | IA: 0</div>
     <div class="board" id="board">
-        <div class="cell" data-index="0"></div>
-        <div class="cell" data-index="1"></div>
-        <div class="cell" data-index="2"></div>
-        <div class="cell" data-index="3"></div>
-        <div class="cell" data-index="4"></div>
-        <div class="cell" data-index="5"></div>
-        <div class="cell" data-index="6"></div>
-        <div class="cell" data-index="7"></div>
-        <div class="cell" data-index="8"></div>
+        <div class="cell" data-index="0" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="1" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="2" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="3" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="4" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="5" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="6" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="7" role="button" aria-label="Celda vacía" tabindex="0"></div>
+        <div class="cell" data-index="8" role="button" aria-label="Celda vacía" tabindex="0"></div>
     </div>
     <button id="restart">Reiniciar Juego</button>
 
     <script>
-        const board = document.getElementById('board');
-        const cells = document.querySelectorAll('.cell');
-        const status = document.getElementById('status');
-        const restartButton = document.getElementById('restart');
-        let gameBoard = ['', '', '', '', '', '', '', '', ''];
-        let gameActive = true;
+        const TicTacToe = {
+            board: ['', '', '', '', '', '', '', '', ''],
+            gameActive: true,
+            currentPlayer: 'X',
+            statusElement: document.getElementById('status'),
+            scoresElement: document.getElementById('scores'),
+            cells: document.querySelectorAll('.cell'),
+            winningCombinations: [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Filas
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columnas
+                [0, 4, 8], [2, 4, 6] // Diagonales
+            ],
+            scores: {
+                player: parseInt(localStorage.getItem('playerScore') || '0'),
+                ai: parseInt(localStorage.getItem('aiScore') || '0')
+            },
 
-        // Combinaciones ganadoras
-        const winningCombinations = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Filas
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columnas
-            [0, 4, 8], [2, 4, 6] // Diagonales
-        ];
-
-        // Manejar clic en una celda (jugador humano)
-        cells.forEach(cell => {
-            cell.addEventListener('click', () => {
-                const index = cell.getAttribute('data-index');
-                if (gameBoard[index] === '' && gameActive) {
-                    makeMove(index, 'X');
-                    if (gameActive) {
-                        setTimeout(aiMove, 500); // IA juega después de 0.5 segundos
-                    }
+            init() {
+                if (!this.statusElement || !this.scoresElement || this.cells.length !== 9) {
+                    console.error('Error: Elementos del DOM no encontrados.');
+                    return;
                 }
-            });
-        });
+                this.cells.forEach(cell => {
+                    cell.addEventListener('click', () => this.handleCellClick(cell));
+                    cell.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') this.handleCellClick(cell);
+                    });
+                });
+                document.getElementById('restart').addEventListener('click', () => this.restartGame());
+                this.updateScores();
+                this.updateStatus();
+            },
 
-        // Realizar un movimiento
-        function makeMove(index, player) {
-            gameBoard[index] = player;
-            cells[index].textContent = player;
-            if (checkWin(player)) {
-                status.textContent = `¡${player === 'X' ? 'Jugador' : 'IA'} gana!`;
-                gameActive = false;
-            } else if (gameBoard.every(cell => cell !== '')) {
-                status.textContent = '¡Empate!';
-                gameActive = false;
-            } else {
-                status.textContent = `Turno del ${player === 'X' ? 'IA (O)' : 'Jugador (X)'}`;
-            }
-        }
-
-        // Movimiento de la IA
-        function aiMove() {
-            // 1. Verificar si la IA puede ganar
-            let move = findBestMove('O');
-            if (move !== null) {
-                makeMove(move, 'O');
-                return;
-            }
-            // 2. Bloquear al jugador si está a punto de ganar
-            move = findBestMove('X');
-            if (move !== null) {
-                makeMove(move, 'O');
-                return;
-            }
-            // 3. Elegir una celda aleatoria
-            const emptyCells = gameBoard.reduce((acc, val, idx) => {
-                if (val === '') acc.push(idx);
-                return acc;
-            }, []);
-            if (emptyCells.length > 0) {
-                const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-                makeMove(randomIndex, 'O');
-            }
-        }
-
-        // Encontrar el mejor movimiento para ganar o bloquear
-        function findBestMove(player) {
-            for (let combination of winningCombinations) {
-                const [a, b, c] = combination;
-                if (gameBoard[a] === player && gameBoard[b] === player && gameBoard[c] === '') return c;
-                if (gameBoard[a] === player && gameBoard[c] === player && gameBoard[b] === '') return b;
-                if (gameBoard[b] === player && gameBoard[c] === player && gameBoard[a] === '') return a;
-            }
-            return null;
-        }
-
-        // Verificar si hay un ganador
-        function checkWin(player) {
-            return winningCombinations.some(combination => {
-                return combination.every(index => gameBoard[index] === player);
-            });
-        }
-
-        // Reiniciar el juego
-        restartButton.addEventListener('click', () => {
-            gameBoard = ['', '', '', '', '', '', '', '', ''];
-            gameActive = true;
-            status.textContent = 'Turno del Jugador: X';
-            cells.forEach(cell => {
-                cell.textContent = '';
-            });
-        });
-    </script>
-</body>
-</html>
+            handleCellClick(cell) {
+                if (!this.gameActive || this.currentPlayer !== 'X') return
